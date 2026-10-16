@@ -89,8 +89,9 @@
   const auth = {
     onAuthStateChange(cb){ authCbs.push(cb); setTimeout(() => cb('INITIAL_SESSION', me()), 10); return { data: { subscription: { unsubscribe(){} } } }; },
     async signInWithPassword({ email, password }){
-      const u = USERS.find(x => x.email === email);
-      if (!u || password !== 'test1234') return { data: null, error: { message: 'Invalid login credentials' } };
+      const extra = load('mock_users', []);
+      const u = USERS.find(x => x.email === email) || extra.find(x => x.email === email);
+      if (!u || password !== (u.password || 'test1234')) return { data: null, error: { message: 'Invalid login credentials' } };
       const s = { user: { id: u.id, email: u.email } }; save('mock_session', s);
       authCbs.forEach(cb => cb('SIGNED_IN', s)); return { data: s, error: null };
     },
@@ -105,5 +106,28 @@
     };
     return ch;
   }
-  window.supabase = { createClient: () => ({ from, rpc, auth, channel }) };
+  const functions = {
+    async invoke(name, { body }){
+      await new Promise(r => setTimeout(r, 30));
+      const err = (m) => ({ data: null, error: { message: 'non-2xx', context: { json: async () => ({ error: m }) } } });
+      if (!isCoach()) return err('Solo el entrenador puede hacer esto');
+      const extra = load('mock_users', []);
+      if (body.action === 'create'){
+        const email = body.username + '@serieaserie.invalid';
+        if (extra.find(u => u.email === email)) return err('Ese usuario ya existe');
+        const id = '44444444-4444-4444-8444-' + String(100000000000 + extra.length).slice(-12);
+        extra.push({ id, email, password: body.password }); save('mock_users', extra);
+        const pr = load('mock_profiles', {}); pr[id] = { id, name: body.name, email }; save('mock_profiles', pr);
+        const docs = load('mock_docs', {}); docs['clients/' + id] = { uid: id, label: body.name, username: body.username, joinedAt: new Date().toISOString() }; save('mock_docs', docs);
+        broadcast({ eventType: 'INSERT', new: { path: 'clients/' + id, parent: 'clients', data: docs['clients/' + id] } });
+        return { data: { ok: true, uid: id }, error: null };
+      }
+      if (body.action === 'password'){
+        const u = extra.find(x => x.id === body.uid); if (!u) return err('no existe');
+        u.password = body.password; save('mock_users', extra); return { data: { ok: true }, error: null };
+      }
+      return err('Acción desconocida');
+    },
+  };
+  window.supabase = { createClient: () => ({ from, rpc, auth, channel, functions }) };
 })();

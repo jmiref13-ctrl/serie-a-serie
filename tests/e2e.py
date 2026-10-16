@@ -10,7 +10,7 @@ time.sleep(0.8)
 errors = []
 PEPE = '22222222-2222-4222-8222-222222222222'
 def login(pg, email):
-    pg.locator('input[type=email]').fill(email); pg.locator('input[type=password]').fill('test1234')
+    pg.locator('input[autocomplete=username]').fill(email); pg.locator('input[type=password]').fill('test1234')
     pg.get_by_role('button', name='Entrar').click(); pg.wait_for_timeout(700)
 def logout(pg):
     pg.get_by_role('button', name='Cerrar sesión').click(); pg.wait_for_timeout(700)
@@ -27,7 +27,7 @@ try:
         pg.goto('http://localhost:8765/'); pg.wait_for_timeout(600)
         pg.screenshot(path=str(OUT/'e_login.png'))
         # contraseña mala
-        pg.locator('input[type=email]').fill('pepe@test.es'); pg.locator('input[type=password]').fill('mal')
+        pg.locator('input[autocomplete=username]').fill('pepe@test.es'); pg.locator('input[type=password]').fill('mal')
         pg.get_by_role('button', name='Entrar').click(); pg.wait_for_timeout(300)
         print('bad login:', pg.locator('.err').first.inner_text())
         # Pepe entra por primera vez
@@ -83,6 +83,24 @@ try:
         logout(pg)
         login(pg, 'javi@test.es')
         pg.screenshot(path=str(OUT/'e_coach2.png'), full_page=True)
+        # alta de cliente con usuario
+        pg.get_by_role('button', name='Dar de alta un cliente').click(); pg.wait_for_timeout(200)
+        pg.get_by_placeholder('Nombre').fill('Raúl Pérez'); pg.wait_for_timeout(100)
+        print('auto username:', pg.get_by_placeholder('usuario').input_value())
+        pg.get_by_label('Contraseña provisional').fill('remo123')
+        pg.get_by_role('button', name='Crear cliente').click(); pg.wait_for_timeout(800)
+        pg.screenshot(path=str(OUT/'e_alta.png'), full_page=True)
+        print('alta:', pg.locator('textarea').first.input_value().replace('\n',' | '))
+        pg.get_by_role('button', name='Hecho').click(); pg.wait_for_timeout(300)
+        pg.get_by_text('Raúl Pérez').first.click(); pg.wait_for_timeout(300)
+        pg.get_by_role('tab', name='Plan').click(); pg.wait_for_timeout(300)
+        pg.get_by_label('Contraseña nueva').fill('nueva123'); pg.get_by_role('button', name='Poner').click(); pg.wait_for_timeout(400)
+        print('reset:', pg.locator('.okbox').last.inner_text())
+        logout(pg)
+        pg.locator('input[autocomplete=username]').fill('Raul'); pg.locator('input[type=password]').fill('nueva123')
+        pg.get_by_role('button', name='Entrar').click(); pg.wait_for_timeout(800)
+        print('raul home:', pg.locator('#app').inner_text()[:120].replace('\n',' | '), '| acct:', pg.locator('#acct').inner_text().replace('\n',' '))
+        logout(pg); login(pg, 'javi@test.es')
         print('coach list:', pg.locator('#app').inner_text()[:300].replace('\n',' | '))
         b.close()
 finally:

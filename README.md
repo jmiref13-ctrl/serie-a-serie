@@ -43,7 +43,7 @@ Los entrenadores están en la tabla `coaches`. Los clientes no pueden borrar nad
 El proyecto `serie-a-serie` (París) ya tiene las tablas, los permisos y el tiempo real (`supabase/migrations/`), y `public/config.js` ya apunta a él. La primera vez que Javi entra, la app carga sola los 5 bloques en la biblioteca (`public/planes.json`; `supabase/seed.sql` hace lo mismo por SQL).
 
 Queda por hacer en el panel de Supabase:
-1. **Authentication → Users → Add user → Create new user**: crea el usuario de Javi (marca *Auto Confirm User*). Con su correo se convierte en entrenador automáticamente.
+1. **Authentication → Users → Add user → Create new user**: crea el usuario de Javi con su correo (marca *Auto Confirm User*). Con ese correo se convierte en entrenador automáticamente. Los clientes se dan de alta desde la app.
 2. **Authentication → Sign In / Providers**: desactiva *Allow new users to sign up* (solo entra quien des de alta).
 3. **Authentication → URL Configuration**: *Site URL* = `https://jmiref13-ctrl.github.io/serie-a-serie/` (para «He olvidado la contraseña»).
 
@@ -56,9 +56,9 @@ insert into public.coaches (user_id) select id from auth.users where email = 'CO
 **Settings → Pages → Source: GitHub Actions.** Cada cambio en `main` se publica solo. La dirección es `https://jmiref13-ctrl.github.io/serie-a-serie/`.
 
 ### 3. Dar de alta a un cliente
-1. Supabase → **Authentication → Users → Add user**, con su correo y una contraseña provisional, marcando *Auto Confirm User*.
-2. Mándale el enlace, su correo y la contraseña. Al entrar escribe su nombre y pulsa **Empezar**: ya aparece en tu panel.
-3. En su ficha → **Plan**: asígnale el bloque y la fecha de inicio. Si tiene la cadera delicada, activa los avisos de cadera.
+Desde la app, en **Clientes → Dar de alta un cliente**: nombre, usuario y contraseña provisional. La app crea su cuenta y te da un mensaje listo para mandarle por WhatsApp. Si se le olvida la contraseña, en su ficha (pestaña Plan → Acceso) le pones una nueva.
+
+Los clientes entran con **usuario y contraseña**, sin correo: por dentro se guardan como `<usuario>@serieaserie.invalid` (dominio reservado, nunca se envía nada). El alta y el cambio de contraseña los hace la función `supabase/functions/usuarios`, que solo acepta peticiones del entrenador. Javi entra con su correo.
 
 En el móvil se puede añadir a la pantalla de inicio (Compartir → Añadir a pantalla de inicio) y se abre como una app.
 

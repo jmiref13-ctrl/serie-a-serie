@@ -1223,11 +1223,12 @@ function clientsView(){
   if (!ids.length){
     wrap.append(h('div',{class:'card stack'},
       h('div',{class:'h2'},'Da de alta a tus clientes'),
-      h('div',{class:'row',style:'align-items:flex-start'}, h('span',{class:'sum-n'},'1'), h('span',null,'Crea su usuario en Supabase: Authentication → Users → Add user → Create new user, con su correo y una contraseña provisional, y marca «Auto Confirm User».')),
-      h('div',{class:'row',style:'align-items:flex-start'}, h('span',{class:'sum-n'},'2'), h('span',null,'Mándale el enlace de la app, su correo y la contraseña. Al entrar pulsa Empezar y aparece aquí. Puede cambiar la contraseña abajo del todo.')),
+      h('div',{class:'row',style:'align-items:flex-start'}, h('span',{class:'sum-n'},'1'), h('span',null,'Pulsa «Dar de alta un cliente» y ponle nombre, usuario y contraseña.')),
+      h('div',{class:'row',style:'align-items:flex-start'}, h('span',{class:'sum-n'},'2'), h('span',null,'Mándale el enlace de la app con su usuario y su contraseña. Puede cambiar la contraseña abajo del todo.')),
       h('div',{class:'row',style:'align-items:flex-start'}, h('span',{class:'sum-n'},'3'), h('span',null,'Entras en su ficha, le asignas un plan y la fecha de inicio.')),
       h('p',{class:'small muted'},'Cada cliente solo ve sus datos; tú los ves todos.'),
       h('button',{class:'btn ghost',onclick: () => safe(() => S.db.doc('clients/demo-prueba').set({uid:'demo-prueba', demo:true, label:'Cliente de prueba', joinedAt:new Date().toISOString()}))}, 'Crear un cliente de prueba')));
+    wrap.append(newClientCard());
     return wrap;
   }
   const un = totalUnread();
@@ -1251,7 +1252,70 @@ function clientsView(){
         h('span',{class:'row wrap',style:'gap:6px'}, rvChip, pain ? h('span',{class:'pill warn'}, icon('warn',14), 'Aviso de molestia') : null)),
       icon('next',18)));
   });
+  wrap.append(newClientCard());
   return wrap;
+}
+/* ---- alta de clientes con usuario y contraseña ---- */
+const slug = (t) => t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,24);
+const genPass = () => { const w = ['banca','remo','sentadilla','dominada','press','zancada','hipthrust','peso']; return w[Math.floor(Math.random()*w.length)] + (100 + Math.floor(Math.random()*900)); };
+function newClientCard(){
+  if (!S.user || !S.user.admin) return '';
+  if (S.ncCard) return S.ncCard;           // se conserva entre repintados (no se pierde lo escrito)
+  const card = S.ncCard = h('div',{class:'card stack'});
+  const closed = () => card.replaceChildren(h('button',{class:'btn full',onclick: open}, icon('plus',18), 'Dar de alta un cliente'));
+  function open(){
+    const nm = h('input',{class:'in',placeholder:'Nombre',autocomplete:'off'});
+    const us = h('input',{class:'in',placeholder:'usuario',autocapitalize:'none',autocorrect:'off',spellcheck:'false'});
+    const pw = h('input',{class:'in',value:genPass(),autocapitalize:'none',autocorrect:'off',spellcheck:'false'});
+    let touched = false;
+    nm.addEventListener('input', () => { if (!touched) us.value = slug(nm.value.split(' ')[0] || ''); });
+    us.addEventListener('input', () => { touched = true; });
+    const box = h('div',{class:'err',hidden:true});
+    const go2 = h('button',{class:'btn full'}, 'Crear cliente');
+    go2.addEventListener('click', async () => {
+      box.hidden = true;
+      const name = nm.value.trim(), username = slug(us.value), password = pw.value.trim();
+      if (!name){ box.textContent = 'Escribe su nombre.'; box.hidden = false; return; }
+      if (username.length < 3){ box.textContent = 'El usuario necesita al menos 3 letras o números.'; box.hidden = false; return; }
+      if (password.length < 6){ box.textContent = 'La contraseña necesita al menos 6 caracteres.'; box.hidden = false; return; }
+      go2.disabled = true; go2.textContent = 'Creando…';
+      try {
+        await S.user.admin({action:'create', name, username, password});
+        const msg = `¡Hola ${name.split(' ')[0]}! Ya tienes tu app de entreno: ${location.origin + location.pathname}\nUsuario: ${username}\nContraseña: ${password}\n(La puedes cambiar abajo del todo en la app.)`;
+        const ta = h('textarea',{class:'in',rows:5,readonly:true,style:'width:100%;font-size:14px'}); ta.value = msg;
+        const cp = h('button',{class:'btn full'}, 'Copiar mensaje');
+        cp.addEventListener('click', async () => { try { await navigator.clipboard.writeText(msg); cp.textContent = 'Copiado'; } catch(e){ ta.select(); } });
+        card.replaceChildren(h('div',{class:'okbox'}, `${name} ya está dado de alta.`), h('p',{class:'small muted'},'Mándale este mensaje por WhatsApp:'), ta, cp, h('button',{class:'btn ghost full',onclick: closed},'Hecho'));
+      } catch(e){ box.textContent = e.userMsg || 'No se ha podido crear.'; box.hidden = false; go2.disabled = false; go2.textContent = 'Crear cliente'; }
+    });
+    card.replaceChildren(h('div',{class:'h2'},'Nuevo cliente'),
+      h('label',{class:'lbl'},'Nombre', nm), h('label',{class:'lbl'},'Usuario (para entrar)', us), h('label',{class:'lbl'},'Contraseña provisional', pw),
+      box, go2, h('button',{class:'btn ghost full',onclick: closed},'Cancelar'));
+    setTimeout(() => nm.focus(), 30);
+  }
+  closed();
+  return card;
+}
+function passwordCard(uid, doc){
+  if (!S.user || !S.user.admin || doc.demo) return '';
+  S.pwCards = S.pwCards || {};
+  if (S.pwCards[uid]) return S.pwCards[uid];
+  return (S.pwCards[uid] = passwordCardBuild(uid, doc));
+}
+function passwordCardBuild(uid, doc){
+  const pw = h('input',{class:'in',value:genPass(),autocapitalize:'none',autocorrect:'off',spellcheck:'false','aria-label':'Contraseña nueva'});
+  const box = h('div',{class:'okbox',hidden:true});
+  const b = h('button',{class:'btn sm'}, 'Poner');
+  b.addEventListener('click', async () => {
+    if (pw.value.trim().length < 6){ box.className = 'err'; box.textContent = 'Al menos 6 caracteres.'; box.hidden = false; return; }
+    b.disabled = true;
+    try { await S.user.admin({action:'password', uid, password: pw.value.trim()}); box.className = 'okbox'; box.textContent = `Hecho. Su contraseña nueva es: ${pw.value.trim()}`; }
+    catch(e){ box.className = 'err'; box.textContent = e.userMsg || 'No se ha podido cambiar.'; }
+    box.hidden = false; b.disabled = false;
+  });
+  return h('div',{class:'card stack'}, h('div',{class:'h3'},'Acceso'),
+    doc.username ? h('p',null, 'Usuario: ', h('b',null, doc.username)) : null,
+    h('label',{class:'lbl'},'Contraseña nueva (si se le olvida)', h('div',{class:'row'}, pw, b)), box);
 }
 function inboxView(){
   const wrap = h('div',{class:'stack'});
@@ -1406,6 +1470,7 @@ function planTab(uid, ctx){
     h('label',{class:'row',for:'hip-' + uid,style:'gap:10px;font-weight:600'}, hip, 'Mostrar avisos de cadera en sus ejercicios'),
     doc.joinedAt ? h('p',{class:'small muted'}, `Alta: ${fmtDay(doc.joinedAt.slice(0,10))}`) : null,
     doc.demo ? delBtn('Borrar cliente de prueba', () => safe(() => S.db.doc('clients/' + uid).delete()).then(() => go({v:'clients'}))) : null));
+  wrap.append(passwordCard(uid, doc));
   return wrap;
 }
 function delBtn(label, fn){

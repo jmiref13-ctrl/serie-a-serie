@@ -40,25 +40,32 @@
   window.SAS_supabase = sb;
 
   /* ================= pantalla de entrada ================= */
+  // Se entra con usuario (p. ej. «pepe») o con correo. Los usuarios se guardan con un correo interno.
+  const DOMAIN = 'serieaserie.invalid';
+  const toEmail = (u) => { u = u.trim().toLowerCase(); return u.includes('@') ? u : u + '@' + DOMAIN; };
+  const shownName = (email) => (email || '').endsWith('@' + DOMAIN) ? email.split('@')[0] : (email || '');
   function field(label, attrs){ const i = el('input', Object.assign({class:'in', style:'min-height:48px;font-size:16px'}, attrs)); return [el('label', {class:'lbl'}, label, i), i]; }
   function msgBox(){ return el('div', {class:'err', hidden:true}); }
   function showMsg(box, t, ok){ box.textContent = t; box.hidden = !t; box.className = ok ? 'okbox' : 'err'; }
 
   function loginView(){
-    const [lE, email] = field('Correo', {type:'email', autocomplete:'email', inputmode:'email', required:true});
+    const [lE, email] = field('Usuario', {type:'text', autocomplete:'username', autocapitalize:'none', autocorrect:'off', spellcheck:'false', required:true});
     const [lP, pass] = field('Contraseña', {type:'password', autocomplete:'current-password', required:true});
     const box = msgBox();
     const btn = el('button', {class:'btn full', type:'submit'}, 'Entrar');
     const form = el('form', {class:'card stack', onsubmit: async (e) => {
       e.preventDefault(); showMsg(box, ''); btn.disabled = true; btn.textContent = 'Entrando…';
-      const { error } = await sb.auth.signInWithPassword({ email: email.value.trim(), password: pass.value });
+      const { error } = await sb.auth.signInWithPassword({ email: toEmail(email.value), password: pass.value });
       btn.disabled = false; btn.textContent = 'Entrar';
-      if (error) showMsg(box, /invalid/i.test(error.message) ? 'Correo o contraseña incorrectos.' : 'No se ha podido entrar. Revisa la conexión e inténtalo otra vez.');
+      if (error) showMsg(box, /invalid/i.test(error.message) ? 'Usuario o contraseña incorrectos.' : 'No se ha podido entrar. Revisa la conexión e inténtalo otra vez.');
     }}, lE, lP, box, btn,
-      el('button', {class:'btn ghost full', type:'button', onclick: () => forgotView(email.value)}, 'He olvidado la contraseña'));
+      el('button', {class:'btn ghost full', type:'button', onclick: () => {
+        if (email.value.includes('@')) return forgotView(email.value);
+        showMsg(box, 'Pídele a Javi que te ponga una contraseña nueva. Él lo hace en un momento desde su panel.', true);
+      }}, 'He olvidado la contraseña'));
     $app.replaceChildren(el('div', {class:'stack', style:'padding-top:20px'},
       hero('Entra en tu cuenta', 'Tus entrenos, tus cargas y el chat con Javi.'), form,
-      el('p', {class:'small muted', style:'text-align:center'}, '¿No tienes cuenta? Pídesela a Javi.')));
+      el('p', {class:'small muted', style:'text-align:center'}, 'Tu usuario y tu contraseña te los da Javi.')));
     $acct.replaceChildren();
     setTimeout(() => email.focus(), 50);
   }
@@ -100,7 +107,7 @@
   function accountBar(session){
     const out = el('button', {class:'linkbtn', type:'button', onclick: async () => { await sb.auth.signOut(); location.reload(); }}, 'Cerrar sesión');
     const pw = el('button', {class:'linkbtn', type:'button', onclick: () => newPasswordView(() => location.reload())}, 'Cambiar contraseña');
-    $acct.replaceChildren(el('span', null, session.user.email || ''), pw, out);
+    $acct.replaceChildren(el('span', null, shownName(session.user.email)), pw, out);
   }
 
   /* ================= adaptador de datos ================= */
@@ -249,6 +256,17 @@
       async name(){
         const { data } = await sb.from('profiles').select('name').eq('id', uid).maybeSingle();
         return (data && data.name) || '';
+      },
+      username(){ return shownName(session.user.email); },
+      async admin(body){
+        const { data, error } = await sb.functions.invoke('usuarios', { body });
+        if (error){
+          let msg = 'No se ha podido completar. Revisa la conexión.';
+          try { const j = await error.context.json(); if (j && j.error) msg = j.error; } catch(e){}
+          throw Object.assign(new Error(msg), { code: 'admin', userMsg: msg });
+        }
+        if (data && data.error) throw Object.assign(new Error(data.error), { code: 'admin', userMsg: data.error });
+        return data;
       },
       async setName(n){ const { error } = await sb.from('profiles').update({ name: n }).eq('id', uid); if (error) throw mapErr(error); },
       async profiles(ids){
