@@ -467,7 +467,7 @@ function warmCard(ctx, d, w, lg){
     return h('div',{class:'row',style:'min-height:48px'}, h('span',{class:'grow'}, h('b',{style:'display:block;font-size:14px'}, nm), h('span',{class:'small muted'}, (cat ? cat + ' · ' : '') + (it.d || ''))), mk(0), mk(1));
   });
   return h('div',{class:'card stack',style:'gap:4px'},
-    h('div',{class:'row between'}, h('span',{class:'h2'},'Calentamiento'), h('span',{class:'pill soft'}, '~10 min · 2 vueltas')),
+    h('div',{class:'row between wrap',style:'row-gap:6px'}, h('span',{class:'h2'},'Calentamiento'), h('span',{class:'pill soft'}, '~10 min · 2 vueltas')),
     h('div',{class:'row small muted',style:'justify-content:flex-end;gap:8px;font-weight:800'}, h('span',{style:'width:44px;text-align:center'},'1ª'), h('span',{style:'width:44px;text-align:center'},'2ª')),
     ...rows);
 }
@@ -1363,7 +1363,7 @@ function weekTab(uid, ctx){
     h('button',{class:'icon-btn','aria-label':'Semana siguiente',disabled: w >= N, onclick: () => setWeek(ctx, w+1)}, icon('next',20))));
   wrap.append(reviewCard(weekReview(ctx, plan, w), w));
   const edit = S.route.edit === w;
-  wrap.append(h('div',{class:'row'},
+  wrap.append(h('div',{class:'row wrap btnrow'},
     h('button',{class:'btn sm ' + (edit ? '' : 'ghost'),onclick: () => { S.tgt = null; S.route = Object.assign({}, S.route, {edit: edit ? null : w}); render(true); }}, edit ? 'Cerrar objetivos' : 'Poner kilos objetivo'),
     h('button',{class:'btn sm line',onclick: () => go({v:'preview', uid})}, icon('eye',16), 'Ver como cliente')));
   const isDl = !!(plan.deload && plan.deload[w]);
@@ -1598,7 +1598,8 @@ function dayEditor(p, d, di){
     const a = h('input',{class:'in','aria-label':`Ejercicio de calentamiento ${i+1}`,value:it.n,placeholder:'Movilidad · Rotación torácica'});
     const b = h('input',{class:'in','aria-label':`Dosis del calentamiento ${i+1}`,value:it.d,placeholder:'8 por lado',style:'width:120px'});
     a.addEventListener('input', () => { it.n = a.value; edDirty(); }); b.addEventListener('input', () => { it.d = b.value; edDirty(); });
-    warm.append(h('div',{class:'row',style:'gap:6px'}, a, b, h('button',{class:'icon-btn','aria-label':'Quitar',onclick: () => { d.warm.splice(i,1); edDirty(); render(true); }}, icon('trash',18))));
+    a.style.flex = '1 1 100%'; b.style.flex = '1 1 auto'; b.style.width = 'auto';
+    warm.append(h('div',{class:'row wrap warmrow',style:'gap:6px;padding-bottom:6px;border-bottom:1px solid var(--line)'}, a, b, h('button',{class:'icon-btn','aria-label':'Quitar',onclick: () => { d.warm.splice(i,1); edDirty(); render(true); }}, icon('trash',18))));
   });
   warm.append(h('button',{class:'add',onclick: () => { d.warm.push({n:'', d:''}); edDirty(); render(true); }}, '+ Añadir ejercicio de calentamiento'));
   wrap.append(warm);

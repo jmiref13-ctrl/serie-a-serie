@@ -202,3 +202,19 @@ table.t td{padding:7px 6px;border-top:1px solid var(--line);vertical-align:top}
 #acct{max-width:600px;margin:0 auto;padding:8px max(16px,env(safe-area-inset-left,0px)) calc(112px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:center;font-size:12.5px;color:var(--muted)}
 #acct:empty{display:none}
 .linkbtn{background:none;border:0;padding:6px 2px;min-height:36px;color:var(--accent);font-weight:700;font-size:12.5px;text-decoration:underline;text-underline-offset:3px}
+
+/* ---- móvil ---- */
+/* iPhone hace zoom al tocar un campo con letra de menos de 16px: en móvil todos los campos van a 16px */
+@media (max-width: 820px){
+  input:not([type=checkbox]):not([type=radio]), select, textarea, .in, .grid-ed .in{font-size:16px !important}
+  .sets input{font-size:18px !important}
+}
+.btnrow > .btn{flex:1 1 auto}
+@media (max-width: 380px){
+  .btnrow > .btn{flex:1 1 100%}
+  .h1,.title{overflow-wrap:anywhere}
+}
+html,body{overflow-x:hidden}
+button,a,input,select,textarea{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#app{padding-top:max(14px, env(safe-area-inset-top, 0px))}
+@media (min-width: 521px){ .warmrow > .in:first-child{flex:1 1 0 !important} .warmrow > .in:nth-child(2){flex:0 0 130px !important} .warmrow{border-bottom:0 !important;padding-bottom:0 !important} }
