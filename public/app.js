@@ -30,6 +30,7 @@ const ICONS = {
   plans:'<rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4V3h6v1M8.5 10h7M8.5 14h7M8.5 18h4"/>',
   back:'<path d="M15 5l-7 7 7 7"/>',
   next:'<path d="M9 5l7 7-7 7"/>',
+  cam:'<path d="M15 10l5-3v10l-5-3z"/><rect x="3" y="6" width="12" height="12" rx="2"/>',
   more:'<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
   warn:'<path d="M12 4l9 16H3L12 4z"/><path d="M12 10v4"/><path d="M12 17.2v.1"/>',
   check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
@@ -390,6 +391,49 @@ function sendMsg(ctx, fromCoach, text, extra){
   const id = newId();
   const m = Object.assign({from: fromCoach ? 'coach' : 'client', text, at:new Date().toISOString()}, extra || {});
   return safe(() => S.db.doc(`clients/${ctx.uid}/msgs/${id}`).set(m));
+}
+/* ---- vídeo de técnica: el cliente graba una serie y se la manda a Javi por el chat ---- */
+const MAX_MB = 50;
+function videoBtn(ctx, ex, w, d){
+  if (ctx.preview || !S.user || !S.user.uploadVideo) return null;
+  const inp = h('input',{type:'file',accept:'video/*',capture:'environment',hidden:true,'aria-hidden':'true'});
+  const st = h('p',{class:'small muted',hidden:true,'aria-live':'polite'});
+  const b = h('button',{class:'btn line sm full'}, icon('cam',18), 'Grabar mi técnica para Javi');
+  const say = (t, ok) => { st.textContent = t; st.hidden = !t; st.style.color = ok ? 'var(--ok)' : ''; };
+  b.addEventListener('click', () => inp.click());
+  inp.addEventListener('change', async () => {
+    const f = inp.files && inp.files[0]; inp.value = ''; if (!f) return;
+    if (f.size > MAX_MB * 1048576){ say(`El vídeo pesa ${Math.round(f.size / 1048576)} MB y el máximo es ${MAX_MB} MB. Graba uno más corto (10-20 segundos, una o dos repeticiones).`); return; }
+    b.disabled = true; say('Subiendo el vídeo… no cierres la app.');
+    try {
+      const path = await S.user.uploadVideo(f, ex.id);
+      const name = vname(ex, w);
+      const ok = await sendMsg(ctx, false, `Vídeo de técnica: ${name} (semana ${w}, día ${d.id})`, {kind:'video', video:path, ex:name, w, d:d.id});
+      say(ok ? 'Enviado. Javi lo verá en el chat.' : 'Se ha subido, pero no se ha podido avisar a Javi. Prueba otra vez.', ok);
+    } catch(e){ say(e.userMsg || 'No se ha podido subir. Revisa la conexión y prueba otra vez.'); }
+    b.disabled = false;
+  });
+  return h('div',{class:'stack',style:'gap:4px'}, b, st, inp);
+}
+S.vids = {};
+function videoBlock(ctx, m, asCoach){
+  const key = m.id || m.video;
+  if (m.videoDeleted) return h('span',{class:'vidgone'}, 'Vídeo borrado');
+  if (S.vids[key]) return S.vids[key];
+  const v = h('video',{controls:true,playsinline:true,preload:'metadata',class:'vid'});
+  const box = h('div',{class:'vidbox'}, v);
+  if (S.user && S.user.videoUrl) S.user.videoUrl(m.video).then(u => { v.src = u; }).catch(() => box.replaceChildren(h('span',{class:'vidgone'},'No se puede cargar el vídeo.')));
+  if (asCoach && S.user && S.user.deleteVideo){
+    const del = h('button',{class:'linkbtn vdel'}, 'Borrar vídeo (libera espacio)');
+    del.addEventListener('click', async () => {
+      if (del.dataset.armed !== '1'){ del.dataset.armed = '1'; del.textContent = 'Pulsa otra vez para borrarlo'; return; }
+      del.disabled = true;
+      try { await S.user.deleteVideo(m.video); await S.db.doc(`clients/${ctx.uid}/msgs/${m.id}`).update({videoDeleted:true}); delete S.vids[key]; }
+      catch(e){ del.disabled = false; del.textContent = 'No se ha podido borrar. Reintentar'; }
+    });
+    box.append(del);
+  }
+  return (S.vids[key] = box);
 }
 function sessionView(ctx, w, dayId){
   const plan = ctx.plan; if (!plan) return homeView(ctx);
@@ -930,6 +974,7 @@ function exCard(ctx, d, ex, n, w, lg, opts){
   note.value = lg.notes[ex.id] || '';
   note.addEventListener('input', () => { lg.notes[ex.id] = note.value; persistLog(ctx, w, d.id); });
   card.append(note);
+  const vb = videoBtn(ctx, ex, w, d); if (vb) card.append(vb);
   card.append(h('div',{class:'row'},
     h('button',{class:'btn ghost sm grow',onclick: () => changeSheet(ctx, d, ex, w, lg)}, 'No puedo hacerlo'),
     h('button',{class:'icon-btn','aria-label':'Más opciones de ' + ex.name,onclick: () => exMenu(ctx, d, ex, w, lg)}, icon('more',20)),
@@ -1077,6 +1122,7 @@ function fillChat(box, ctx, asCoach){
       m.kind === 'session' ? h('b',{style:'display:block'},'Resumen de sesión') : null,
       m.kind === 'summary' ? h('b',{style:'display:block;color:var(--accent)'},'Resumen semanal') : null,
       String(m.text).replace(/^Sesión completada: /,''),
+      m.kind === 'video' && m.video ? videoBlock(ctx, m, asCoach) : null,
       h('span',{class:'meta'}, (mine ? '' : (m.from === 'coach' ? COACH + ' · ' : m.from === 'app' ? 'Serie a Serie · ' : (asCoach ? clientName(ctx.uid) + ' · ' : ''))) + hhmm(m.at))));
   });
   const atBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 80;

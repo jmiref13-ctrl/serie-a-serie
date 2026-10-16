@@ -218,3 +218,9 @@ html,body{overflow-x:hidden}
 button,a,input,select,textarea{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 #app{padding-top:max(14px, env(safe-area-inset-top, 0px))}
 @media (min-width: 521px){ .warmrow > .in:first-child{flex:1 1 0 !important} .warmrow > .in:nth-child(2){flex:0 0 130px !important} .warmrow{border-bottom:0 !important;padding-bottom:0 !important} }
+/* vídeos de técnica en el chat */
+.vidbox{display:flex;flex-direction:column;gap:4px;margin-top:6px;white-space:normal}
+.vid{width:100%;max-width:280px;max-height:360px;border-radius:12px;background:#000;display:block}
+.vidgone{display:block;margin-top:4px;font-style:italic;opacity:.8}
+.msg.me .vdel{color:inherit}
+.btn.full{width:100%}

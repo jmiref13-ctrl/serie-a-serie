@@ -60,6 +60,9 @@ Desde la app, en **Clientes → Dar de alta un cliente**: nombre, usuario y cont
 
 Los clientes entran con **usuario y contraseña**, sin correo: por dentro se guardan como `<usuario>@serieaserie.invalid` (dominio reservado, nunca se envía nada). El alta y el cambio de contraseña los hace la función `supabase/functions/usuarios`, que solo acepta peticiones del entrenador. Javi entra con su correo.
 
+### Vídeos de técnica
+En cada ejercicio de la sesión, el cliente pulsa **«Grabar mi técnica para Javi»**: se abre la cámara del móvil, graba una serie y el vídeo llega al chat de Javi. Se guardan en Supabase Storage (carpeta `videos/<uid>/`, privada: solo el cliente y Javi). Máximo 50 MB por vídeo (10-20 s); el plan gratis tiene 1 GB en total, así que Javi puede borrar cada vídeo desde el chat cuando lo haya revisado.
+
 En el móvil se puede añadir a la pantalla de inicio (Compartir → Añadir a pantalla de inicio) y se abre como una app.
 
 ## Pruebas

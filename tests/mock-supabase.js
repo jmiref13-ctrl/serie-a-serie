@@ -129,5 +129,12 @@
       return err('Acción desconocida');
     },
   };
-  window.supabase = { createClient: () => ({ from, rpc, auth, channel, functions }) };
+  const storage = { from(bucket){ return {
+    async upload(path, file){ await new Promise(r => setTimeout(r, 30)); const s0 = me(); if (!s0 || (path.split('/')[0] !== s0.user.id)) return { error: { message: 'new row violates row-level security policy' } };
+      if (file.size > 52428800) return { error: { message: 'The object exceeded the maximum allowed size', statusCode: '413' } };
+      const v = load('mock_videos', []); v.push(path); save('mock_videos', v); return { data: { path }, error: null }; },
+    async createSignedUrl(path){ const v = load('mock_videos', []); if (!v.includes(path) || !(isCoach() || path.startsWith(me().user.id))) return { error: { message: 'not found' } }; return { data: { signedUrl: 'https://example.invalid/' + path }, error: null }; },
+    async remove(paths){ const v = load('mock_videos', []).filter(p => !paths.includes(p)); save('mock_videos', v); return { error: null }; },
+  }; } };
+  window.supabase = { createClient: () => ({ from, rpc, auth, channel, functions, storage }) };
 })();

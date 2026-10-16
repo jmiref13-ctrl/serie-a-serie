@@ -258,6 +258,24 @@
         return (data && data.name) || '';
       },
       username(){ return shownName(session.user.email); },
+      async uploadVideo(file, exId){
+        const ext = (/quicktime/.test(file.type) ? 'mov' : (file.type.split('/')[1] || 'mp4')).replace(/[^a-z0-9]/g,'').slice(0,5) || 'mp4';
+        const path = `${uid}/${Date.now()}_${String(exId).replace(/[^A-Za-z0-9_-]/g,'')}.${ext}`;
+        const { error } = await sb.storage.from('videos').upload(path, file, { contentType: file.type || 'video/mp4', upsert: false });
+        if (error){
+          const big = /size|large|413/i.test(error.message || '') || error.statusCode === '413';
+          throw Object.assign(new Error(error.message), { userMsg: big ? 'El vídeo es demasiado grande (máximo 50 MB). Graba uno más corto.' : 'No se ha podido subir. Revisa la conexión y prueba otra vez.' });
+        }
+        return path;
+      },
+      async videoUrl(path){
+        const { data, error } = await sb.storage.from('videos').createSignedUrl(path, 60 * 60 * 6);
+        if (error) throw error; return data.signedUrl;
+      },
+      async deleteVideo(path){
+        const { error } = await sb.storage.from('videos').remove([path]);
+        if (error) throw error;
+      },
       async admin(body){
         const { data, error } = await sb.functions.invoke('usuarios', { body });
         if (error){

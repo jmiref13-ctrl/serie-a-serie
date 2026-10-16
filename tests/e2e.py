@@ -62,6 +62,11 @@ try:
         logs = [k for k in st if k.startswith(f'clients/{PEPE}/logs/')]
         print('logs:', logs, json.dumps(st[logs[0]]['sets']['A1'][:2]) if logs else '')
         pg.screenshot(path=str(OUT/'e_session.png'))
+        # vídeo de técnica
+        open('/tmp/claude-0/tecnica.mp4','wb').write(b'\x00' * 2048)
+        pg.locator('#ex-A1 input[type=file]').set_input_files('/tmp/claude-0/tecnica.mp4'); pg.wait_for_timeout(600)
+        print('video status:', pg.locator('#ex-A1 p[aria-live]').inner_text())
+        pg.locator('#ex-A1').screenshot(path=str(OUT/'e_videobtn.png'))
         # recarga: los datos vuelven del servidor
         pg.reload(); pg.wait_for_timeout(900)
         pg.screenshot(path=str(OUT/'e_reload.png'), full_page=True)
@@ -101,6 +106,13 @@ try:
         pg.get_by_role('button', name='Entrar').click(); pg.wait_for_timeout(800)
         print('raul home:', pg.locator('#app').inner_text()[:120].replace('\n',' | '), '| acct:', pg.locator('#acct').inner_text().replace('\n',' '))
         logout(pg); login(pg, 'javi@test.es')
+        pg.get_by_text('Pepe').first.click(); pg.wait_for_timeout(300)
+        pg.get_by_role('tab', name='Mensajes').click(); pg.wait_for_timeout(600)
+        print('coach video src:', pg.locator('video.vid').first.get_attribute('src'))
+        pg.screenshot(path=str(OUT/'e_coach_video.png'), full_page=True)
+        pg.get_by_role('button', name='Borrar vídeo (libera espacio)').click(); pg.get_by_role('button', name='Pulsa otra vez para borrarlo').click(); pg.wait_for_timeout(500)
+        print('after delete:', pg.locator('.vidgone').first.inner_text(), pg.evaluate("localStorage.mock_videos"))
+        pg.locator('#nav').get_by_role('button', name='Clientes').click(); pg.wait_for_timeout(300)
         print('coach list:', pg.locator('#app').inner_text()[:300].replace('\n',' | '))
         b.close()
 finally:
