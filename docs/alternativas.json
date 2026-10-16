@@ -1,0 +1,503 @@
+{
+ "zonas": [
+  "Hombro",
+  "Codo",
+  "Muñeca",
+  "Cuello",
+  "Espalda alta",
+  "Espalda baja",
+  "Cadera",
+  "Rodilla",
+  "Tobillo",
+  "Otra"
+ ],
+ "patrones_cercanos": {
+  "empuje-h": [
+   "pecho-ais",
+   "triceps",
+   "empuje-v"
+  ],
+  "empuje-v": [
+   "hombro-lat",
+   "triceps",
+   "empuje-h"
+  ],
+  "tiron-v": [
+   "tiron-h",
+   "biceps",
+   "hombro-post"
+  ],
+  "tiron-h": [
+   "tiron-v",
+   "hombro-post",
+   "biceps"
+  ],
+  "pecho-ais": [
+   "empuje-h",
+   "triceps"
+  ],
+  "hombro-lat": [
+   "hombro-post",
+   "empuje-v"
+  ],
+  "hombro-post": [
+   "tiron-h",
+   "hombro-lat"
+  ],
+  "biceps": [
+   "tiron-v",
+   "tiron-h"
+  ],
+  "triceps": [
+   "empuje-h",
+   "pecho-ais"
+  ],
+  "rodilla": [
+   "gluteo",
+   "cuad-ais",
+   "isquio"
+  ],
+  "cuad-ais": [
+   "rodilla",
+   "gluteo"
+  ],
+  "bisagra": [
+   "gluteo",
+   "isquio",
+   "rodilla"
+  ],
+  "gluteo": [
+   "isquio",
+   "bisagra",
+   "rodilla"
+  ],
+  "isquio": [
+   "gluteo",
+   "bisagra"
+  ],
+  "gemelo": [
+   "isquio",
+   "gluteo"
+  ]
+ },
+ "alternativas": {
+  "empuje-h": [
+   {
+    "n": "Press en máquina sentado",
+    "l": [
+     "Hombro",
+     "Codo"
+    ],
+    "e": 1,
+    "c": "Espalda pegada al respaldo y codos a unos 45°."
+   },
+   {
+    "n": "Press banca con mancuernas",
+    "l": [
+     "Hombro",
+     "Codo",
+     "Muñeca"
+    ],
+    "c": "Escápulas juntas, baja hasta la altura del pecho."
+   },
+   {
+    "n": "Press inclinado en máquina",
+    "l": [
+     "Hombro",
+     "Codo"
+    ],
+    "e": 1,
+    "c": "Pecho alto, sube sin bloquear los codos de golpe."
+   },
+   {
+    "n": "Flexiones",
+    "l": [
+     "Hombro",
+     "Muñeca",
+     "Codo"
+    ],
+    "e": 1,
+    "c": "Cuerpo en bloque, baja el pecho hasta casi el suelo."
+   }
+  ],
+  "empuje-v": [
+   {
+    "n": "Press de hombro en máquina",
+    "l": [
+     "Hombro",
+     "Codo"
+    ],
+    "e": 1,
+    "c": "Espalda pegada al respaldo, sube en línea recta."
+   },
+   {
+    "n": "Press Arnold sentado",
+    "l": [
+     "Hombro"
+    ],
+    "c": "Gira las palmas mientras subes, sin arquear la zona lumbar."
+   },
+   {
+    "n": "Press landmine a una mano",
+    "l": [
+     "Hombro"
+    ],
+    "e": 1,
+    "c": "De pie o de rodillas, empuja la barra hacia arriba y adelante."
+   }
+  ],
+  "tiron-v": [
+   {
+    "n": "Jalón al pecho con agarre neutro",
+    "l": [
+     "Hombro",
+     "Codo"
+    ],
+    "e": 1,
+    "c": "Pecho alto y codos hacia las caderas."
+   },
+   {
+    "n": "Dominadas asistidas (máquina o banda)",
+    "l": [
+     "Hombro",
+     "Codo"
+    ],
+    "e": 1,
+    "c": "Rango completo, sube el pecho a la barra."
+   },
+   {
+    "n": "Jalón a una mano",
+    "l": [
+     "Hombro"
+    ],
+    "c": "Tira del codo hacia la cadera, sin girar el tronco."
+   }
+  ],
+  "tiron-h": [
+   {
+    "n": "Remo en máquina con pecho apoyado",
+    "l": [
+     "Codo"
+    ],
+    "e": 1,
+    "c": "Pecho pegado, junta escápulas al final."
+   },
+   {
+    "n": "Remo en polea sentado",
+    "l": [
+     "Codo",
+     "Espalda baja"
+    ],
+    "e": 1,
+    "c": "Espalda neutra, tira hacia el ombligo."
+   },
+   {
+    "n": "Remo a una mano con mancuerna",
+    "l": [
+     "Codo",
+     "Espalda baja"
+    ],
+    "c": "Apoya mano y rodilla en el banco, codo hacia la cadera."
+   }
+  ],
+  "pecho-ais": [
+   {
+    "n": "Aperturas en máquina",
+    "l": [
+     "Hombro"
+    ],
+    "e": 1,
+    "c": "Codos ligeramente flexionados, cierra en 1 s."
+   },
+   {
+    "n": "Cruce de poleas",
+    "l": [
+     "Hombro"
+    ],
+    "c": "Pecho alto, junta las manos delante del pecho."
+   },
+   {
+    "n": "Aperturas con mancuernas",
+    "l": [
+     "Hombro"
+    ],
+    "c": "Baja hasta notar estiramiento, sin dolor de hombro."
+   }
+  ],
+  "hombro-lat": [
+   {
+    "n": "Elevación lateral en máquina",
+    "l": [
+     "Hombro"
+    ],
+    "e": 1,
+    "c": "Sube hasta la altura del hombro, sin impulso."
+   },
+   {
+    "n": "Elevación lateral en polea",
+    "l": [
+     "Hombro"
+    ],
+    "c": "Codo algo flexionado, baja en 2 s."
+   },
+   {
+    "n": "Elevaciones laterales con mancuernas",
+    "l": [
+     "Hombro"
+    ],
+    "c": "Hombros lejos de las orejas."
+   }
+  ],
+  "hombro-post": [
+   {
+    "n": "Pájaros en máquina",
+    "l": [
+     "Hombro"
+    ],
+    "e": 1,
+    "c": "Abre los brazos sin encoger los hombros."
+   },
+   {
+    "n": "Face pull",
+    "l": [
+     "Hombro"
+    ],
+    "c": "Tira hacia la cara abriendo los codos."
+   },
+   {
+    "n": "Pájaros con mancuernas",
+    "l": [
+     "Hombro",
+     "Espalda baja"
+    ],
+    "c": "Tronco inclinado y espalda neutra."
+   }
+  ],
+  "biceps": [
+   {
+    "n": "Curl en polea",
+    "l": [
+     "Codo",
+     "Muñeca"
+    ],
+    "e": 1,
+    "c": "Codos pegados al cuerpo."
+   },
+   {
+    "n": "Curl martillo",
+    "l": [
+     "Codo"
+    ],
+    "e": 1,
+    "c": "Palmas enfrentadas, sin balancear."
+   },
+   {
+    "n": "Curl en banco Scott",
+    "l": [
+     "Codo"
+    ],
+    "c": "Baja controlando sin bloquear el codo de golpe."
+   }
+  ],
+  "triceps": [
+   {
+    "n": "Extensión en polea con cuerda",
+    "l": [
+     "Codo"
+    ],
+    "e": 1,
+    "c": "Codos fijos, abre la cuerda abajo."
+   },
+   {
+    "n": "Extensión sobre la cabeza en polea",
+    "l": [
+     "Codo",
+     "Hombro"
+    ],
+    "c": "Codos apuntando al frente, estira del todo."
+   },
+   {
+    "n": "Press cerrado en máquina",
+    "l": [
+     "Codo",
+     "Hombro",
+     "Muñeca"
+    ],
+    "c": "Codos pegados al cuerpo."
+   }
+  ],
+  "rodilla": [
+   {
+    "n": "Prensa",
+    "l": [
+     "Rodilla",
+     "Cadera"
+    ],
+    "e": 1,
+    "c": "Pelvis pegada al respaldo, baja hasta donde no se despegue."
+   },
+   {
+    "n": "Sentadilla goblet",
+    "l": [
+     "Rodilla",
+     "Cadera",
+     "Espalda baja"
+    ],
+    "e": 1,
+    "c": "Mancuerna pegada al pecho, rodillas en la línea de los pies."
+   },
+   {
+    "n": "Sentadilla hack",
+    "l": [
+     "Rodilla",
+     "Cadera"
+    ],
+    "c": "Espalda pegada al respaldo."
+   },
+   {
+    "n": "Zancada inversa",
+    "l": [
+     "Rodilla",
+     "Cadera",
+     "Tobillo"
+    ],
+    "c": "Paso atrás, rodilla delantera sobre el pie."
+   }
+  ],
+  "cuad-ais": [
+   {
+    "n": "Extensión de cuádriceps a una pierna",
+    "l": [
+     "Rodilla"
+    ],
+    "e": 1,
+    "c": "Rodilla alineada con el eje de la máquina."
+   },
+   {
+    "n": "Prensa con pies bajos",
+    "l": [
+     "Rodilla",
+     "Cadera"
+    ],
+    "c": "Pies en la parte baja de la plataforma."
+   }
+  ],
+  "bisagra": [
+   {
+    "n": "Hip thrust",
+    "l": [
+     "Cadera"
+    ],
+    "e": 1,
+    "c": "Barbilla al pecho, empuja con los talones."
+   },
+   {
+    "n": "Pull-through en polea",
+    "l": [
+     "Cadera"
+    ],
+    "e": 1,
+    "c": "Cadera atrás y aprieta glúteos al subir."
+   },
+   {
+    "n": "Peso muerto rumano con mancuernas",
+    "l": [
+     "Espalda baja",
+     "Cadera"
+    ],
+    "c": "Cadera atrás, espalda neutra."
+   },
+   {
+    "n": "Hiperextensiones a 45°",
+    "l": [
+     "Espalda baja",
+     "Cadera"
+    ],
+    "c": "Mueve desde la cadera, no arquees al subir."
+   }
+  ],
+  "gluteo": [
+   {
+    "n": "Hip thrust en máquina",
+    "l": [
+     "Cadera"
+    ],
+    "e": 1,
+    "c": "Sube y aguanta 1 s arriba."
+   },
+   {
+    "n": "Puente de glúteo con barra",
+    "l": [
+     "Cadera"
+    ],
+    "e": 1,
+    "c": "Desde el suelo, empuja con los talones."
+   },
+   {
+    "n": "Patada de glúteo en polea",
+    "l": [
+     "Cadera"
+    ],
+    "c": "Sin arquear la zona lumbar."
+   },
+   {
+    "n": "Abducción en máquina",
+    "l": [
+     "Cadera"
+    ],
+    "e": 1,
+    "c": "Abre controlando y vuelve en 2 s."
+   }
+  ],
+  "isquio": [
+   {
+    "n": "Curl femoral sentado",
+    "l": [
+     "Rodilla"
+    ],
+    "e": 1,
+    "c": "Cadera pegada, baja en 3 s."
+   },
+   {
+    "n": "Curl femoral tumbado",
+    "l": [
+     "Rodilla"
+    ],
+    "e": 1,
+    "c": "Pelvis pegada al banco."
+   },
+   {
+    "n": "Curl femoral con fitball",
+    "l": [
+     "Rodilla"
+    ],
+    "c": "Cadera arriba durante todo el movimiento."
+   }
+  ],
+  "gemelo": [
+   {
+    "n": "Gemelo en prensa",
+    "l": [
+     "Tobillo"
+    ],
+    "e": 1,
+    "c": "Rango completo y pausa abajo."
+   },
+   {
+    "n": "Gemelo sentado",
+    "l": [
+     "Tobillo"
+    ],
+    "e": 1,
+    "c": "Sin rebotes."
+   },
+   {
+    "n": "Gemelo de pie",
+    "l": [
+     "Tobillo"
+    ],
+    "c": "Sube del todo y baja hasta estirar."
+   }
+  ]
+ }
+}
